@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
+    <title>Bharanidharan Anandakumar | Porfolio</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Cyber Theme Variables (Dark Default) */
+            --bg: #050505;
+            --surface: #0f0f0f;
+            --border: #1a1a1a;
+            --text: #d1d1d1;
+            --accent: #00ff41; 
+            --accent-dim: rgba(0, 255, 65, 0.15);
+            --font-mono: 'Share Tech Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --font-serif: 'Merriweather', serif;
+            
+            /* Read Mode Variables (Dark Default) */
+            --read-bg: #1a1a1a;
+            --read-text: #e0e0e0;
+            --read-border: #444;
+        }
+
+        /* LIGHT THEME OVERRIDES */
+        .light-theme {
+            --bg: #f0f2f5;
+            --surface: #ffffff;
+            --border: #d1d5db;
+            --text: #1f2937;
+            --accent: #059669;
+            --accent-dim: rgba(5, 150, 105, 0.1);
+
+            /* Read Mode Variables (Light) */
+            --read-bg: #ffffff;
+            --read-text: #000000;
+            --read-border: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            transition: background 0.3s, color 0.3s;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* MATRIX CANVAS */
+        #matrix-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* TOOLBAR */
+        .toolbar {
+            position: fixed;
+            top: 20px; right: 20px;
+            display: flex; gap: 12px;
+            z-index: 10000;
+            background: var(--surface);
+            padding: 8px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+        }
+
+        .tool-btn {
+            width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            border-radius: 8px;
+            color: var(--text);
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+        .tool-btn:hover { background: var(--accent-dim); color: var(--accent); }
+        .active-mode { color: var(--accent) !important; background: var(--accent-dim) !important; box-shadow: inset 0 0 0 1px var(--accent); }
+
+        /* MAIN LAYOUTS */
+        .container { max-width: 900px; margin: 0 auto; padding: 80px 20px; }
+        
+        #read-mode-view { display: none; } /* Hidden by default */
+
+        /* --- CYBER ANIMATED STYLES --- */
+        #cyber-mode-view header { text-align: center; margin-bottom: 60px; min-height: 200px; }
+        .glitch-name { 
+            font-family: var(--font-mono); 
+            font-size: clamp(1.6rem, 5vw, 2.8rem); 
+            color: var(--accent); 
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            display: inline-block;
+            border-right: 3px solid var(--accent); /* Cursor */
+        }
+        
+        .tagline { font-family: var(--font-mono); opacity: 0.8; margin-bottom: 15px; min-height: 1.5em; }
+        .contact-row { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; font-size: 0.9rem; opacity: 0; }
+        .contact-row a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--accent-dim); transition: 0.2s; }
+        .contact-row a:hover { color: var(--accent); border-color: var(--accent); }
+
+        #cyber-mode-view section { margin-bottom: 50px; opacity: 0; transform: translateY(30px); }
+        .cyber-title { 
+            font-family: var(--font-mono); color: var(--accent); 
+            border-bottom: 1px solid var(--border); margin-bottom: 20px; 
+            padding-bottom: 5px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px;
+        }
+
+        .cyber-card { 
+            background: var(--surface); border: 1px solid var(--border); 
+            padding: 25px; border-radius: 8px; position: relative;
+            transition: border-color 0.3s;
+        }
+        .cyber-card:hover { border-color: var(--accent); }
+
+        .skills-group { margin-bottom: 20px; }
+        .skills-group h4 { font-size: 0.9rem; color: var(--text); opacity: 0.7; margin-bottom: 8px; font-family: var(--font-mono); text-transform: uppercase; }
+        .skills-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .skill-tag { 
+            background: var(--accent-dim); border: 1px solid var(--accent); 
+            color: var(--accent); padding: 4px 10px; font-size: 0.8rem; 
+            font-family: var(--font-mono); border-radius: 4px; 
+            cursor: default; transition: 0.2s;
+        }
+        .skill-tag:hover { background: var(--accent); color: #000; }
+
+        .job-item { margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed var(--border); }
+        .job-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .job-header { display: flex; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; }
+        .job-role { color: var(--accent); font-weight: bold; font-family: var(--font-mono); }
+        .job-date { opacity: 0.7; font-size: 0.9rem; }
+        
+        .cyber-list { list-style: none; padding-left: 10px; }
+        .cyber-list li { position: relative; padding-left: 20px; margin-bottom: 8px; font-size: 0.95rem; }
+        .cyber-list li::before { content: ">"; position: absolute; left: 0; color: var(--accent); font-family: var(--font-mono); }
+
+        /* --- PLAIN READ MODE STYLES (Print-like, Theme Aware) --- */
+        .read-mode-active body { 
+            background-color: var(--read-bg) !important; 
+            color: var(--read-text) !important; 
+        }
+        .read-mode-active #cyber-mode-view { display: none !important; }
+        .read-mode-active #read-mode-view { display: block !important; }
+        .read-mode-active #matrix-canvas { display: none !important; }
+        
+        /* Ensure toolbar maintains contrast in read mode */
+        .read-mode-active .toolbar { 
+            background: var(--read-bg); 
+            border-color: var(--read-border); 
+        }
+        .read-mode-active .tool-btn { 
+            color: var(--read-text); 
+        }
+
+        #read-mode-view { 
+            font-family: var(--font-serif); 
+            line-height: 1.5; 
+            max-width: 850px; 
+        }
+        
+        .doc-header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            border-bottom: 2px solid var(--read-border); 
+            padding-bottom: 20px; 
+        }
+        .doc-name { font-size: 24pt; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
+        .doc-sub { font-size: 10pt; margin-bottom: 5px; font-family: sans-serif; }
+        .doc-contact { font-size: 10pt; font-family: sans-serif; }
+
+        .doc-section { margin-bottom: 25px; }
+        .doc-title { 
+            font-size: 12pt; font-weight: bold; text-transform: uppercase; 
+            border-bottom: 1px solid var(--read-border); margin-bottom: 10px; padding-bottom: 3px; 
+            color: var(--read-text); letter-spacing: 0.5px; font-family: sans-serif;
+        }
+        .doc-content p { margin-bottom: 10px; text-align: justify; font-size: 11pt; }
+        
+        .doc-job { margin-bottom: 15px; }
+        .doc-job-head { display: flex; justify-content: space-between; font-weight: bold; font-family: sans-serif; font-size: 11pt; }
+        .doc-list { list-style-type: disc; padding-left: 20px; margin-top: 5px; }
+        .doc-list li { margin-bottom: 4px; font-size: 11pt; }
+
+        @media (max-width: 768px) {
+            .toolbar { top: auto; bottom: 20px; right: 50%; transform: translateX(50%); width: auto; justify-content: space-between; }
+            .job-header { flex-direction: column; }
+            .doc-job-head { flex-direction: column; }
+            .container { padding-top: 40px; padding-bottom: 100px; }
+        }
+
+        @media print {
+            .toolbar, #matrix-canvas { display: none !important; }
+            #cyber-mode-view { display: none !important; }
+            #read-mode-view { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .read-mode-active body { background: white !important; color: black !important; }
+            .doc-title, .doc-header { border-bottom-color: #333 !important; color: black !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BACKGROUND ANIMATION -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- NAVIGATION -->
+    <div class="toolbar">
+        <button class="tool-btn active-mode" id="btn-cyber" title="Cyber Mode"><i class="fas fa-terminal"></i></button>
+        <button class="tool-btn" id="btn-read" title="Read Mode"><i class="fas fa-file-alt"></i></button>
+        <button class="tool-btn" id="btn-theme" title="Toggle Theme"><i class="fas fa-adjust"></i></button>
+        <button class="tool-btn" id="btn-dl" title="Download PDF"><i class="fas fa-download"></i></button>
+    </div>
+
+    <!-- === CYBER ANIMATED VIEW === -->
+    <main id="cyber-mode-view" class="container">
+        <header>
+            <div class="glitch-name" id="typing-name"></div>
+            <div class="tagline" id="typing-tagline"></div>
+            <div class="contact-row" id="contact-row">
+                <span><i class="fas fa-map-marker-alt"></i> Coimbatore, IN</span>
+                <a href="mailto:Root@bhranX.me"><i class="fas fa-envelope"></i> Email</a>
+                <a href="tel:9363021216"><i class="fas fa-phone"></i> 9363021216</a>
+                <a href="https://linkedin.com/in/bdak" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                <a href="https://tryhackme.com/p/VicMic" target="_blank"><i class="fas fa-user-secret"></i> VicMic</a>
+            </div>
+        </header>
+
+        <section>
+            <h2 class="cyber-title"><i class="fas fa-user-circle"></i> SUMMARY</h2>
+            <div class="cyber-card">
+                As a Certified Ethical Hacker aspiring to build a career in cybersecurity with a focus on VAPT and junior penetration testing roles. Hands-on exposure to vulnerability assessment, web security testing, and attack simulations through structured training and labs. With foundational expertise in Digital Forensics and SOC operations, brings a purple-team perspective across offensive and defensive security. Seeking a full-time junior pentester role to kickstart a professional cybersecurity career.
+            </div>
+        </section>
+
+        <section>
+            <h2 class="cyber-title"><i class="fas fa-code-branch"></i> CORE_SKILLS</h2>
+            <div class="cyber-card">
+                <div class="skills-grid">
+                    <span class="skill-tag">VAPT</span>
+                    <span class="skill-tag">Exploit Techniques</span>
+                    <span class="skill-tag">Privilege Escalation</span>
+                    <span class="skill-tag">Active Directory Security</span>
+                    <span class="skill-tag">Network Security</span>
+                    <span class="skill-tag">SOC Operations</span>
+                    <span class="skill-tag">Digital Forensics</span>
+                    <span class="skill-tag">Malware Analysis</span>
+                    <span class="skill-tag">OWASP Top 10</span>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="cyber-title"><i class="fas fa-tools"></i> ARSENAL (Tools & Tech)</h2>
+            <div class="cyber-card">
+                <div class="skills-group">
+                    <h4>Security Testing</h4>
+                    <div class="skills-grid">
+                        <span class="skill-tag">Burp Suite</span><span class="skill-tag">Metasploit</span>
+                        <span class="skill-tag">Nmap</span><span class="skill-tag">Hydra</span>
+                        <span class="skill-tag">SQLMap</span><span class="skill-tag">Nessus</span>
+                        <span class="skill-tag">Nikto</span><span class="skill-tag">Netcat</span>
+                        <span class="skill-tag">John the Ripper</span><span class="skill-tag">OWASP ZAP</span>
+                        <span class="skill-tag">Hashcat</span><span class="skill-tag">Aircrack-ng</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h4>AD & Network Security</h4>
+                    <div class="skills-grid">
+                        <span class="skill-tag">BloodHound</span><span class="skill-tag">Mimikatz</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h4>Traffic Analysis</h4>
+                    <div class="skills-grid">
+                        <span class="skill-tag">Wireshark</span><span class="skill-tag">Tcpdump</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h4>Systems & Infra</h4>
+                    <div class="skills-grid">
+                        <span class="skill-tag">Linux</span><span class="skill-tag">Windows</span>
+                        <span class="skill-tag">Windows Server 2022</span><span class="skill-tag">Nginx</span>
+                        <span class="skill-tag">Apache</span><span class="skill-tag">Ubuntu Server</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h4>Programming & Scripting</h4>
+                    <div class="skills-grid">
+                        <span class="skill-tag">Python</span><span class="skill-tag">Bash/Shell</span>
+                        <span class="skill-tag">PHP</span><span class="skill-tag">JavaScript</span>
+                        <span class="skill-tag">C</span><span class="skill-tag">C++</span>
+                    </div>
+                </div>
+                <div class="skills-group">
+                    <h4>DBMS</h4>
+                    <div class="skills-grid">
+                        <span class="skill-tag">MySQL</span><span class="skill-tag">SQLite</span>
+                        <span class="skill-tag">MongoDB</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="cyber-title"><i class="fas fa-briefcase"></i> EXPERIENCE</h2>
+            <div class="cyber-card">
+                <div class="job-item">
+                    <div class="job-header">
+                        <span class="job-role">Cybersecurity Trainee @ Prompt Infotech Pvt Ltd, CBE</span>
+                        <span class="job-date">Jul 2023 – Jul 2025</span>
+                    </div>
+                    <ul class="cyber-list">
+                        <li>Performed structured vulnerability assessments and penetration testing on lab-based web and network environments.</li>
+                        <li>Conducted web application security testing covering injection attacks, authentication and authorization flaws, access control issues, file handling vulnerabilities, and security misconfigurations.</li>
+                        <li>Executed Active Directory attack simulations using privilege escalation, credential harvesting, and lateral movement techniques in controlled lab environments.</li>
+                        <li>Performed network security testing and security analysis in simulated enterprise environments.</li>
+                        <li>Applied the MITRE ATT&CK framework for threat analysis and adversary behavior mapping.</li>
+                        <li>Performed security documentation and reporting, creating clear vulnerability reports with risk impact, findings, and remediation recommendations.</li>
+                        <li>Architected a personal cyber lab using home NAS infrastructure to simulate enterprise environments for security testing and training.</li>
+                    </ul>
+                </div>
+                <div class="job-item">
+                    <div class="job-header">
+                        <span class="job-role">Web Development Intern @ Accent Techno Soft, CBE</span>
+                        <span class="job-date">Jul – Aug 2022</span>
+                    </div>
+                    <ul class="cyber-list">
+                        <li>Completed structured internship training in web development with practical exposure to front-end and back-end technologies.</li>
+                        <li>Deployed and maintained a functional website, gaining hands-on experience in development, hosting, and basic maintenance workflows.</li>
+                        <li>Developed understanding of IT consultancy operations, service models, and how IT solutions are delivered to clients in a professional services environment.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="cyber-title"><i class="fas fa-graduation-cap"></i> EDUCATION & CERTIFICATIONS</h2>
+            <div class="cyber-card">
+                <div style="margin-bottom: 20px;">
+                    <div class="job-header">
+                        <span class="job-role">B.Sc. Computer Science @ Kongunadu Arts and Science College</span>
+                        <span class="job-date">2020 – 2023 | CGPA: 8.5</span>
+                    </div>
+                </div>
+                
+                <div class="skills-group">
+                    <h4>Certifications</h4>
+                    <div class="skills-grid">
+                        <span class="skill-tag">Certified Ethical Hacker (CEH)</span>
+                        <span class="skill-tag">Adv. Diploma Cyber Security & Forensics</span>
+                        <span class="skill-tag">Certified Network Pen-tester</span>
+                        <span class="skill-tag">Certified Bug Hunter</span>
+                        <span class="skill-tag">CCNA</span>
+                        <span class="skill-tag">MCSE</span>
+                        <span class="skill-tag">Python Certified Professional</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="cyber-title"><i class="fas fa-trophy"></i> HONORS</h2>
+            <div class="cyber-card">
+                <ul class="cyber-list">
+                    <li>Top 3% Rank - TryHackMe.</li>
+                    <li>First Rank - B.Sc. Computer Science.</li>
+                    <li>First Class with Distinction - B.Sc. Computer Science.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- === PLAIN READ MODE VIEW (STATIC HTML) === -->
+    <div id="read-mode-view" class="container">
+        <div class="doc-header">
+            <div class="doc-name">BHARANIDHARAN ANANDAKUMAR</div>
+            <div class="doc-sub">Junior Cybersecurity Professional | VAPT | CEH | Bug Hunter</div>
+            <div class="doc-contact">Coimbatore, India | 9363021216 | Root@bhranX.me</div>
+            <div class="doc-contact">LinkedIn:/bdak | TryHackMe: VicMic</div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">SUMMARY</div>
+            <div class="doc-content">
+                <p>As a Certified Ethical Hacker aspiring to build a career in cybersecurity with a focus on VAPT and junior penetration testing roles. Hands-on exposure to vulnerability assessment, web security testing, and attack simulations through structured training and labs. With foundational expertise in Digital Forensics and SOC operations, brings a purple-team perspective across offensive and defensive security. Seeking a full-time junior pentester role to kickstart a professional cybersecurity career.</p>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">CORE SKILLS</div>
+            <div class="doc-content">
+                <p>Vulnerability Assessment & Penetration Testing (VAPT), Exploit Techniques, Privilege Escalation, Active Directory Security, Network Security, Security Operations (SOC), Digital Forensics, Malware Analysis, OWASP Top 10.</p>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">TOOLS & TECHNOLOGIES</div>
+            <div class="doc-content">
+                <ul class="doc-list">
+                    <li><strong>Security Testing:</strong> Burp Suite, Metasploit, Nmap, Hydra, SQLMap, Nessus, Nikto, Netcat, John the Ripper, OWASP ZAP, Hashcat, Aircrack-ng, CrackMapExec.</li>
+                    <li><strong>AD & Network Security:</strong> BloodHound, Mimikatz.</li>
+                    <li><strong>Traffic Analysis:</strong> Wireshark, Tcpdump.</li>
+                    <li><strong>Systems & Infra:</strong> Linux, Windows, Windows Server 2022, Nginx, Apache, Ubuntu Server.</li>
+                    <li><strong>Simulation & Labs:</strong> Cisco Packet Tracer, Home lab setup with NAS.</li>
+                    <li><strong>Programming & Scripting:</strong> Python, Bash/Shell, PHP, JavaScript, C, C++.</li>
+                    <li><strong>DBMS:</strong> MySQL, SQLite, MongoDB.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">EXPERIENCE</div>
+            
+            <div class="doc-job">
+                <div class="doc-job-head">
+                    <span>Cybersecurity Trainee @ Prompt Infotech Pvt Ltd, CBE</span>
+                    <span>Jul 2023 - Jul 2025</span>
+                </div>
+                <ul class="doc-list">
+                    <li>Performed structured vulnerability assessments and penetration testing on lab-based web and network environments.</li>
+                    <li>Conducted web application security testing covering injection attacks, authentication and authorization flaws, access control issues, file handling vulnerabilities, and security misconfigurations.</li>
+                    <li>Executed Active Directory attack simulations using privilege escalation, credential harvesting, and lateral movement techniques in controlled lab environments.</li>
+                    <li>Performed network security testing and security analysis in simulated enterprise environments.</li>
+                    <li>Applied the MITRE ATT&CK framework for threat analysis and adversary behavior mapping in simulated environments, following structured methodologies aligned with OWASP Top 10 and VAPT frameworks.</li>
+                    <li>Performed security documentation and reporting, creating clear vulnerability reports with risk impact, findings, and remediation recommendations.</li>
+                    <li>Architected a personal cyber lab using home NAS infrastructure to simulate enterprise environments for security testing and training.</li>
+                </ul>
+            </div>
+
+            <div class="doc-job">
+                <div class="doc-job-head">
+                    <span>Web Development Intern @ Accent Techno Soft, CBE</span>
+                    <span>Jul - Aug 2022</span>
+                </div>
+                <ul class="doc-list">
+                    <li>Completed structured internship training in web development with practical exposure to front-end and back-end technologies.</li>
+                    <li>Deployed and maintained a functional website, gaining hands-on experience in development, hosting, and basic maintenance workflows.</li>
+                    <li>Developed understanding of IT consultancy operations, service models, and how IT solutions are delivered to clients in a professional services environment.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">EDUCATION</div>
+            <div class="doc-job">
+                <div class="doc-job-head">
+                    <span>Bachelor of Science in Computer Science @ Kongunadu Arts and Science College, CBE</span>
+                    <span>2020 - 2023</span>
+                </div>
+                <p>CGPA: 8.5</p>
+            </div>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">CERTIFICATIONS</div>
+            <ul class="doc-list">
+                <li>Certified Ethical Hacker (CEH)</li>
+                <li>Advanced Diploma in Cyber Security & Cyber Forensics</li>
+                <li>Certified Network Pen-tester</li>
+                <li>Certified Bug Hunter</li>
+                <li>CCNA</li>
+                <li>MCSE</li>
+                <li>Python Certified Professional Programmer</li>
+            </ul>
+        </div>
+
+        <div class="doc-section">
+            <div class="doc-title">HONORS & ACHIEVEMENTS</div>
+            <ul class="doc-list">
+                <li>Top 3% Rank - TryHackMe.</li>
+                <li>First Rank - B.Sc. Computer Science.</li>
+                <li>First Class with Distinction - B.Sc. Computer Science.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        gsap.registerPlugin(TextPlugin);
+
+        // --- MATRIX RAIN ANIMATION ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resizeMatrix() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        const cols = Math.floor(window.innerWidth / 20);
+        const ypos = Array(cols).fill(0);
+
+        function matrixDraw() {
+            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg') === '#050505' ? '#0001' : '#fff1';
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = '#0f0';
+            ctx.font = '12pt monospace';
+
+            ypos.forEach((y, ind) => {
+                const text = String.fromCharCode(Math.random() * 128);
+                const x = ind * 20;
+                ctx.fillText(text, x, y);
+                if (y > 100 + Math.random() * 10000) ypos[ind] = 0;
+                else ypos[ind] = y + 20;
+            });
+        }
+
+        window.addEventListener('resize', resizeMatrix);
+        resizeMatrix();
+        let matrixInterval = setInterval(matrixDraw, 50);
+
+        // --- TYPING ANIMATION SEQUENCER ---
+        const nameText = "Bharanidharan Anandakumar";
+        const taglineText = "Junior Cybersecurity Professional | VAPT | CEH | Bug Hunter";
+
+        function startTypingSequence() {
+            const tl = gsap.timeline();
+            
+            // Clear & Reset
+            document.getElementById("typing-name").innerText = "";
+            document.getElementById("typing-tagline").innerText = "";
+            gsap.set("#contact-row", { opacity: 0 });
+            gsap.set("#cyber-mode-view section", { opacity: 0, y: 30 });
+
+            // 1. Type Name
+            tl.to("#typing-name", {
+                duration: 1.5,
+                text: nameText,
+                ease: "none"
+            });
+
+            // 2. Pause & Remove Cursor form Name
+            tl.to("#typing-name", { borderRightColor: "transparent", duration: 0.1 }, "+=0.5");
+
+            // 3. Type Tagline
+            tl.to("#typing-tagline", {
+                duration: 2,
+                text: taglineText,
+                ease: "none",
+                onStart: () => {
+                    document.getElementById("typing-tagline").style.borderRight = "2px solid var(--accent)";
+                },
+                onComplete: () => {
+                    document.getElementById("typing-tagline").style.borderRight = "none";
+                }
+            });
+
+            // 4. Reveal Content
+            tl.to("#contact-row", { opacity: 1, duration: 0.5 });
+            tl.to("#cyber-mode-view section", { opacity: 1, y: 0, stagger: 0.15, duration: 0.8, ease: "power2.out" }, "-=0.3");
+        }
+
+        // --- CONTROLS ---
+        const body = document.body;
+        const cyberBtn = document.getElementById('btn-cyber');
+        const readBtn = document.getElementById('btn-read');
+        const themeBtn = document.getElementById('btn-theme');
+
+        cyberBtn.onclick = () => {
+            body.classList.remove('read-mode-active');
+            cyberBtn.classList.add('active-mode');
+            readBtn.classList.remove('active-mode');
+            
+            // Restart Matrix Rain
+            clearInterval(matrixInterval);
+            resizeMatrix();
+            matrixInterval = setInterval(matrixDraw, 50);
+
+            // Restart GSAP
+            startTypingSequence();
+        };
+
+        readBtn.onclick = () => {
+            body.classList.add('read-mode-active');
+            readBtn.classList.add('active-mode');
+            cyberBtn.classList.remove('active-mode');
+            clearInterval(matrixInterval); // Stop matrix to save resources
+        };
+
+        themeBtn.onclick = () => {
+            body.classList.toggle('light-theme');
+            const icon = themeBtn.querySelector('i');
+            if(body.classList.contains('light-theme')) {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-adjust';
+            }
+        };
+
+        document.getElementById('btn-dl').onclick = () => window.print();
+
+        // Initial Start
+        window.onload = startTypingSequence;
+
+    </script>
+</body>
+
+</html>
